@@ -1,0 +1,107 @@
+# Defines main function and runs the game
+def main():
+    print("\t\t\tThis is a text-based game featuring YOU as Road Runner\n\
+          To win, you must collect all six items to defeat the boss.\n\
+          To move between rooms, enter go north, go south, go east, or go west.\n\
+          To collect an item, enter 'get {item name}'\n\n")
+
+
+# Dictionary of rooms, items, valid player directions, and the boss
+rooms = {
+    'Start Room': {'South': 'Elon Shop', 'North': 'Steel Shop', 'East': 'Ripley Shop', 'West': 'Chemist Shop'},
+    'Chemist Shop': {'East': 'Start Room', 'Item': 'Dynamite'},
+    'Steel Shop': {'South': 'Start Room', 'East': 'Mechanic Shop', 'Item': 'Anvil'},
+    'Mechanic Shop': {'West': 'Steel Shop', 'Item': 'Axle Grease'},
+    'Magic Shop': {'South': 'Ripley Shop', 'Item': 'Invisible Paint'},
+    'Ripley Shop': {'North': 'Magic Shop', 'West': 'Start Room', 'Item': 'Giant Rubber Bands'},
+    'Elon Shop': {'North': 'Start Room', 'East': 'Villain Den', 'Item': 'Rocket Powered Skates'},
+    'Villain Den': {'West': 'Elon Shop', 'Boss': 'Wile E Coyote'}
+}
+
+# Initializing the inventory container
+inventory = []
+
+# Create the current room variable.
+# Sets it to the Start Room.
+# Keeps track of the player's location
+current_room = "Start Room"
+
+# Shows the result of the most recent player move
+msg = ""
+
+# Calls the main function
+main()
+
+# While loop that actually makes the game work
+while True:
+
+    # Display player's game status
+    print(f"You are in the {current_room}\nInventory : {inventory}\n{'-' * 25}")
+
+    # Display msg
+    print(msg)
+
+    # Tells the player if an item is in the current room and validates inventory
+    if "Item" in rooms[current_room].keys():
+        nearby_item = rooms[current_room]["Item"]
+        if nearby_item not in inventory:
+            print(f"You see the {nearby_item}")
+
+    # If the player lands in the villain den
+    if "Boss" in rooms[current_room].keys():
+
+        if len(inventory) < 6:  # Player loses the fight if this IF condition validates true
+            print(f"You lost the fight with {rooms[current_room]['Boss']}.")
+            break
+        else:  # Player wins the fight if this ELSE condition validates true
+            print(f"You beat {rooms[current_room]['Boss']}!")
+            break
+
+    # Directs player to enter their move and sets it to the user_input variable
+    player_input = input("Enter a direction:\n")
+
+    player_move = player_input.split(' ')  # Receives player input and splits into two words
+
+    verb = player_move[0].title()  # Receives the first element of the split and applies title case
+
+    item = "Item"  # Creates item variable
+    direction = "null"  # Creates direction variable
+
+    if len(player_move) > 1:  # Evaluates player input length for both moving and item pickup
+        item = player_move[1:]
+        direction = player_move[1].title()
+
+        item = ' '.join(item).title()
+
+    if verb == "Go":  # Evaluates player go input for traveling between rooms
+
+        try:  # If the player inputs a valid move, they move - if not, they hit a wall
+            current_room = rooms[current_room][direction]
+            msg = f"You traveled {direction}."
+
+        except Exception:
+            msg = "Cannot go that way"
+
+    elif verb == "Get":  # Evaluates player get input for picking up items
+
+        try:  # Parses existing player inventory for valid or invalid item pickup
+            if item == rooms[current_room]["Item"]:
+
+                if item not in inventory:
+
+                    inventory.append(rooms[current_room]["Item"])
+                    msg = f"{item} collected."
+
+                else:
+                    msg = f"You already have the {item}."
+
+            else:
+                msg = f"Can't find the {item}."
+        except Exception:
+            msg = f"Can't find the {item}."
+
+    elif verb == "Exit":  # Exits the game immediately
+        break
+
+    else:
+        msg = "Try again."
